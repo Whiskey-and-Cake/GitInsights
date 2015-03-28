@@ -1,72 +1,84 @@
 var db = angular.module('FirebaseApp', ['firebase']);
-// makes $firebaseObject, $firebaseArray, and $firebaseAuth available
+// makes $firebaselistect, $firebaseArray, and $firebaseAuth available
 
-db.controller('FavoriteCtrl', function($scope, $firebaseObject, $firebaseArray) {
-  var ref = new Firebase('https://gitinsights.firebaseio.com');
+db.factory('FireFactory', function($firebaseAuth, $firebaseArray) {
+  var ref = new Firebase('https://gitinsights.firebaseio.com/');
   var faves = ref.child('favorites');
-
-  // downloads data to local object
-  var syncObj = $firebaseObject(ref);
-
-  // binds the firebase object to $scope.data
-  //syncObj.$bindTo($scope, 'data');
-
-  // creates synchronized array
-  var faveArray = $firebaseArray(faves);
-  faveArray.$bindTo($scope, 'favorites');
+  return {
+    ref: ref,
+    auth: $firebaseAuth(ref),
+    favorites: $firebaseArray(faves)
+  };
 });
 
+db.factory('FavoriteFactory', function($firebaseArray) {
+  var ref = new Firebase('https://gitinsights.firebaseio.com/favorites');
+  var faves = $firebaseArray(ref);
 
+  return function addFavorite(favorite, user) {
+    console.log('GOT HERE');
+    faves.$add({
+      fave: favorite,
+      user: user
+    }).then(function (ref) {
+      var id = ref.key();
+      console.log('added record with id ' + id);
+      faves.$indexFor(id);
+    });
+  }
+});
 
+db.controller('FavoriteController', FavoriteController);
 
-//db.factory('FireFactory', function($scope, $firebaseAuth, $firebaseObject) {
-//  var ref = new Firebase('https://gitinsights.firebaseio.com');
-//  return {
-//    auth: $firebaseAuth(ref),
-//    favorites: $firebaseObject(ref)
-//  };
-//});
-//
-//db.controller('FavoriteController', ['$scope', 'FireFactory', '$firebaseObject',
-//  function($scope, FireFactory) {
-//    //var ref = new Firebase('https://gitinsights.firebaseio.com/');
-//    var obj = FireFactory.favorites;
-//
-//    obj.$loaded().then(function() {
-//      // accesses each record
-//      angular.forEach(obj, function(value, key) {
-//        console.log(key,value);
-//      })
-//    });
-//
-//    // make object available to scope
-//    $scope.data = obj;
-//
-//    // three-way binding
-//    obj.$bindTo($scope, 'data');
-//
-//    function addFavorite(favorite) {
-//      obj.favorite = favorite;
-//      obj.user = authData.uid;
-//      obj.$save().then(function(ref) {
-//        obj.key() === obj.$id;
-//      }, function(error) {
-//        console.log('Error:', error);
-//      });
-//    }
-//
-//  }
-//]);
-//
-//db.controller('GitAuth', ['FireFactory', '$firebaseAuth', function($scope, FireFactory) {
-//  var auth = FireFactory.auth;
-//  auth.$authWithOAuthPopup('github', function(error, authData) {
-//    if (error) {
-//      console.log('Login failed:', error);
-//    } else {
-//      console.log('Authenticated successfully with payload:', authData);
-//    }
-//  });
-//
-//}]);
-//
+FavoriteController.$inject = ['$scope', 'FireFactory', 'FavoriteFactory'];
+function FavoriteController ($scope, FireFactory, FavoriteFactory) {
+  //var ref = new Firebase('https://gitinsights.firebaseio.com/');
+  var list = FireFactory.favorites;
+  var ref = FireFactory.ref;
+  var auth = FireFactory.auth;
+  var user = auth.uid;
+
+  //list.$loaded().then(function() {
+  //  // accesses each record
+  //  angular.forEach(list, function(value, key) {
+  //    console.log(key,value);
+  //  })
+  //});
+
+  // make list available to scope
+  $scope.data = list;
+
+  // three-way binding
+  //list.$bindTo($scope, 'list');
+  //FavoriteFactory(favorite, user);
+  $scope.addFactory = FavoriteFactory;
+  //function addFavorite(favorite) {
+  //  var user = authData.uid;
+  //  list.$add({
+  //    fave: favorite,
+  //    user: user
+  //  }).then(function(ref) {
+  //    var id = ref.key();
+  //    console.log('added record with id ' + id);
+  //    list.$indexFor(id);
+  //  });
+    //list.$save();
+  //}
+}
+
+// dependency injections should mirror function parameters
+db.controller('GitAuth', GitAuth);
+
+GitAuth.$inject = ['$scope', 'FireFactory'];
+function GitAuth ($scope, FireFactory) {
+  var auth = FireFactory.auth;
+
+  $scope.authData = authData;
+  auth.$authWithOAuthPopup('github', function(error, authData) {
+    if (error) {
+      console.log('Login failed:', error);
+    } else {
+      console.log('Authenticated successfully with payload:', authData);
+    }
+  });
+}

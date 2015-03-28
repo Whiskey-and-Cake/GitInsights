@@ -13,35 +13,35 @@
     <!--<script src="/client/app/scripts/services/newAuth.js"></script>-->
 </head>
 <body>
-    <div ng-controller="FavoriteCtrl">
-        <!--Things in here are saved to firebase-->
-        <input type="text" ng-model="favorite"/>
-        You added: {{ favorite }}
+    <!--<div ng-controller="FavoriteCtrl">-->
+        <!--&lt;!&ndash;Things in here are saved to firebase&ndash;&gt;-->
+        <!--<input type="text" ng-model="favorite"/>-->
+        <!--You added: {{ favorite }}-->
 
-        <ul>
-            <li ng-repeat="fave in favorites">{{ fave }}</li>
-        </ul>
+        <!--<ul>-->
+            <!--<li ng-repeat="fave in favorites">{{ fave }}</li>-->
+        <!--</ul>-->
+    <!--</div>-->
+
+    <div ng-controller="GitAuth">
+        <strong>Auth Controller</strong>
+        <br>
+        <button ng-click="auth.$authWithOAuthPopup('github')">Login With Github</button>
+        <br>
+        <p ng-if="authData">Logged in user: <strong>{{ authData.uid }}</strong></p>
+        <p ng-if="error">Error: <strong>{{ error }}</strong></p>
     </div>
 
-    <!--<div ng-controller="GitAuth">-->
-        <!--<strong>Auth Controller</strong>-->
-        <!--<br>-->
-        <!--<button ng-click="auth.$authWithOAuthPopup('github')">Login With Github</button>-->
-        <!--<br>-->
-        <!--Test {{ authData.uid }}-->
-
-        <!--<p ng-if="authData">Logged in user: <strong>{{ authData.uid }}</strong></p>-->
-        <!--<p ng-if="error">Error: <strong>{{ error }}</strong></p>-->
-    <!--</div>-->
-
-    <!--<div ng-controller="FavoriteController">-->
-        <!--<strong>Favorite Controller</strong>-->
-        <!--<br>-->
-        <!--<input type="text" ng-model="favorite">-->
-        <!--<button ng-click="addFavorite()">Add Favorite</button>-->
-        <!--<br>-->
-        <!--<span>{{ obj.favorite }}</span>-->
-    <!--</div>-->
+    <div ng-controller="FavoriteController">
+        <strong>Favorite Controller</strong>
+        <br>
+        <input type="text" ng-model="favorite">
+        <button ng-click="addFactory()">Add Favorite</button>
+        <br>
+        <ul>
+            <li ng-repeat="fave in data">{{fave}}</li>
+        </ul>
+    </div>
 
 
 </body>
